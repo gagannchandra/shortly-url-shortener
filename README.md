@@ -11,7 +11,7 @@
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-CC0000?style=flat-square)](https://sqlalchemy.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
-[**Live Demo**](#) · [**API Docs**](#api-documentation) · [**Report Bug**](https://github.com/gagannchandra/shortly-url-shortener/issues)
+[**Live Demo**](https://gagannchandra.pythonanywhere.com/) · [**API Docs**](#api-documentation) · [**Report Bug**](https://github.com/gagannchandra/shortly-url-shortener/issues)
 
 </div>
 
