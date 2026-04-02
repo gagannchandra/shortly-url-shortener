@@ -2,7 +2,7 @@
 
 A fast, minimal URL shortener built with Flask and vanilla JavaScript. Supports custom aliases, click analytics, and instant redirects.
 
-**Live Demo → [shortly-production.up.railway.app](https://shortly-production.up.railway.app)**
+**Live Demo → [Link](https://gagannchandra.pythonanywhere.com/)**
 
 ---
 
