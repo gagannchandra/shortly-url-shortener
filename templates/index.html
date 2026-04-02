@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shortly — Modern URL Shortener</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <style>
+    /* ── Design tokens ─────────────────────────────────── */
+    :root {
+      --bg:       #0b0f19;
+      --card:     rgba(255,255,255,0.05);
+      --border:   rgba(255,255,255,0.08);
+      --text:     #e5e7eb;
+      --muted:    #9ca3af;
+      --primary:  #6366f1;
+      --success:  #10b981;
+      --error:    #ef4444;
+      --radius:   14px;
+      --transition: 0.2s ease;
+    }
+
+    /* ── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Base ───────────────────────────────────────────── */
+    body {
+      font-family: 'Ubuntu', system-ui, sans-serif;
+      background: radial-gradient(circle at top, #111827, #020617);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Layout ─────────────────────────────────────────── */
+    .container {
+      max-width: 880px;
+      width: 100%;
+      margin: auto;
+      padding: 24px;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    /* ── Card ───────────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      backdrop-filter: blur(12px);
+    }
+
+    /* ── Form groups ────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── Inputs ─────────────────────────────────────────── */
+    input[type="url"],
+    input[type="text"] {
+      flex: 1;
+      min-width: 0;                   /* prevents overflow in flex */
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: white;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
+    input.invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+    }
+
+    /* ── Icon button ────────────────────────────────────── */
+    .icon-btn {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      background: #1f2937;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .icon-btn:hover {
+      background: #374151;
+      color: var(--text);
+    }
+
+    .material-symbols-outlined {
+      font-size: 18px;
+      user-select: none;
+    }
+
+    /* ── Custom alias toggle ────────────────────────────── */
+    .alias-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      width: fit-content;         /* only the toggle row is clickable */
+    }
+
+    .alias-toggle span.label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    .switch {
+      flex-shrink: 0;
+      width: 42px;
+      height: 22px;
+      background: #374151;
+      border-radius: 999px;
+      position: relative;
+      transition: background var(--transition);
+    }
+
+    .switch::after {
+      content: "";
+      width: 18px;
+      height: 18px;
+      background: white;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+
+    .switch.active {
+      background: var(--primary);
+    }
+
+    .switch.active::after {
+      transform: translateX(20px);
+    }
+
+    /* ── Alias input ────────────────────────────────────── */
+    #alias-group {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin-bottom 0.3s ease;
+      margin-bottom: 0;
+    }
+
+    #alias-group.visible {
+      max-height: 80px;
+      opacity: 1;
+      margin-bottom: 22px;
+    }
+
+    .field-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    /* ── Submit button ──────────────────────────────────── */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Spinner inside button */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .submit-btn.loading .spinner { display: block; }
+    .submit-btn.loading .btn-text { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result box ─────────────────────────────────────── */
+    .result {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    }
+
+    .result.visible {
+      max-height: 120px;
+      opacity: 1;
+      margin-top: 20px;
+    }
+
+    .result-inner {
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .result-inner.success { border-color: var(--success); }
+    .result-inner.error   { border-color: var(--error);   }
+
+    .result-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .result-inner.success .result-label { color: var(--success); }
+    .result-inner.error   .result-label { color: var(--error);   }
+
+    .short-url-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .short-url-link {
+      flex: 1;
+      min-width: 0;
+      color: var(--primary);
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.95rem;
+    }
+
+    .short-url-link:hover { text-decoration: underline; }
+
+    .analytics-link {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      transition: color var(--transition), border-color var(--transition);
+      white-space: nowrap;
+    }
+
+    .analytics-link:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .error-message {
+      font-size: 0.9rem;
+      color: var(--error);
+    }
+
+    /* ── Footer ─────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Shortly</h1>
+      <p>Fast, reliable URL shortening with a modern interface.</p>
+    </header>
+
+    <div class="card">
+      <form id="shorten-form" novalidate>
+
+        <!-- Long URL input -->
+        <div class="form-group">
+          <label for="long-url-input">Enter your long URL</label>
+          <div class="input-wrapper">
+            <input
+              type="url"
+              id="long-url-input"
+              placeholder="https://example.com"
+              autocomplete="off"
+              spellcheck="false"
+              required
+            >
+            <button type="button" class="icon-btn" id="paste-btn" title="Paste from clipboard" aria-label="Paste URL">
+              <span class="material-symbols-outlined" id="paste-icon">content_paste</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom alias toggle -->
+        <div
+          class="alias-toggle"
+          id="alias-toggle"
+          role="switch"
+          aria-checked="false"
+          aria-label="Use custom alias"
+          tabindex="0"
+        >
+          <div class="switch" id="switch" aria-hidden="true"></div>
+          <span class="label">Use custom alias</span>
+        </div>
+
+        <!-- Custom alias input (animated reveal) -->
+        <div id="alias-group" aria-hidden="true">
+          <label for="custom-alias-input">Custom alias</label>
+          <input
+            type="text"
+            id="custom-alias-input"
+            placeholder="my-brand (4–30 alphanumeric)"
+            autocomplete="off"
+            spellcheck="false"
+            minlength="4"
+            maxlength="30"
+          >
+          <p class="field-hint">Letters and numbers only, 4–30 characters.</p>
+        </div>
+
+        <!-- Submit button -->
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <div class="spinner" aria-hidden="true"></div>
+          <span class="btn-text">Shorten URL</span>
+        </button>
+
+        <!-- Result area -->
+        <div id="result" class="result" role="status" aria-live="polite"></div>
+
+      </form>
+    </div>
+  </div>
+
+  <footer>Built with Flask &bull; Vanilla JavaScript &bull; SQLite</footer>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* ── Element references ─────────────────────────── */
+      const form          = document.getElementById('shorten-form');
+      const urlInput      = document.getElementById('long-url-input');
+      const pasteBtn      = document.getElementById('paste-btn');
+      const pasteIcon     = document.getElementById('paste-icon');
+      const aliasToggle   = document.getElementById('alias-toggle');
+      const switchEl      = document.getElementById('switch');
+      const aliasGroup    = document.getElementById('alias-group');
+      const aliasInput    = document.getElementById('custom-alias-input');
+      const submitBtn     = document.getElementById('submit-btn');
+      const resultBox     = document.getElementById('result');
+
+      /* ── State ──────────────────────────────────────── */
+      let aliasEnabled = false;
+      let isSubmitting = false;
+
+      /* ── Custom alias toggle ────────────────────────── */
+      function toggleAlias() {
+        aliasEnabled = !aliasEnabled;
+        switchEl.classList.toggle('active', aliasEnabled);
+        aliasGroup.classList.toggle('visible', aliasEnabled);
+        aliasToggle.setAttribute('aria-checked', String(aliasEnabled));
+        aliasGroup.setAttribute('aria-hidden', String(!aliasEnabled));
+
+        if (!aliasEnabled) {
+          aliasInput.value = '';
+          aliasInput.classList.remove('invalid');
+        } else {
+          // Focus alias input after animation
+          setTimeout(() => aliasInput.focus(), 320);
+        }
+      }
+
+      aliasToggle.addEventListener('click', toggleAlias);
+
+      // Keyboard accessibility for the toggle
+      aliasToggle.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          toggleAlias();
+        }
+      });
+
+      /* ── Paste button ───────────────────────────────── */
+      pasteBtn.addEventListener('click', async () => {
+        if (!navigator.clipboard?.readText) {
+          urlInput.focus();
+          return;
+        }
+        try {
+          const text = (await navigator.clipboard.readText()).trim();
+          if (text) {
+            urlInput.value = text;
+            urlInput.classList.remove('invalid');
+            // Visual feedback
+            pasteIcon.textContent = 'check';
+            setTimeout(() => { pasteIcon.textContent = 'content_paste'; }, 1200);
+          }
+        } catch {
+          urlInput.focus();
+        }
+      });
+
+      /* ── Validation helpers ─────────────────────────── */
+      const ALIAS_REGEX = /^[a-zA-Z0-9]+$/;
+
+      function validateUrl(value) {
+        if (!value) return 'Please enter a URL.';
+        // Allow bare domains — backend prepends https:// in this case
+        const withScheme = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+        try {
+          const parsed = new URL(withScheme);
+          // Reject bare words like "hii" — a real hostname must contain a dot
+          if (!parsed.hostname.includes('.')) {
+            return 'Please enter a valid URL (e.g., https://example.com).';
+          }
+        } catch {
+          return 'Please enter a valid URL.';
+        }
+        return null;
+      }
+
+      function validateAlias(value) {
+        if (!value) return 'Custom alias cannot be empty.';
+        if (!ALIAS_REGEX.test(value)) return 'Alias must contain only letters and numbers.';
+        if (value.length < 4 || value.length > 30) return 'Alias must be between 4 and 30 characters.';
+        return null;
+      }
+
+      /* ── Result rendering ───────────────────────────── */
+      function showResult(type, html) {
+        resultBox.innerHTML = `
+          <div class="result-inner ${type}">
+            <p class="result-label">${type === 'success' ? 'Your short URL' : 'Error'}</p>
+            ${html}
+          </div>`;
+        resultBox.classList.add('visible');
+      }
+
+      function showSuccess(shortUrl) {
+        // Extract the short code to build the analytics link
+        const shortCode = shortUrl.split('/').filter(Boolean).pop();
+        const analyticsHref = `/analytics/${shortCode}`;
+
+        showResult('success', `
+          <div class="short-url-row">
+            <a class="short-url-link" href="${escapeHtml(shortUrl)}" target="_blank" rel="noopener noreferrer">
+              ${escapeHtml(shortUrl)}
+            </a>
+            <button type="button" class="icon-btn" id="copy-btn" title="Copy to clipboard" aria-label="Copy short URL">
+              <span class="material-symbols-outlined" id="copy-icon">content_copy</span>
+            </button>
+            <a class="analytics-link" href="${escapeHtml(analyticsHref)}" target="_blank" rel="noopener noreferrer" title="View analytics">
+              <span class="material-symbols-outlined" style="font-size:14px">bar_chart</span>
+              Analytics
+            </a>
+          </div>`);
+
+        // Attach copy handler after DOM is updated
+        document.getElementById('copy-btn').addEventListener('click', () => copyToClipboard(shortUrl));
+      }
+
+      function showError(message) {
+        showResult('error', `<p class="error-message">${escapeHtml(message)}</p>`);
+      }
+
+      function hideResult() {
+        resultBox.classList.remove('visible');
+      }
+
+      /* ── Copy to clipboard ──────────────────────────── */
+      async function copyToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          const icon = document.getElementById('copy-icon');
+          if (icon) {
+            icon.textContent = 'check';
+            setTimeout(() => { if (icon) icon.textContent = 'content_copy'; }, 1200);
+          }
+        } catch {
+          // Clipboard write failed — silently ignore (already selected via focus)
+        }
+      }
+
+      /* ── Loading state helpers ──────────────────────── */
+      function setLoading(loading) {
+        isSubmitting = loading;
+        submitBtn.disabled = loading;
+        submitBtn.classList.toggle('loading', loading);
+      }
+
+      /* ── Form submission ────────────────────────────── */
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (isSubmitting) return;
+
+        const rawUrl   = urlInput.value.trim();
+        const rawAlias = aliasEnabled ? aliasInput.value.trim() : '';
+
+        // — Client-side validation —
+        const urlError = validateUrl(rawUrl);
+        if (urlError) {
+          urlInput.classList.add('invalid');
+          showError(urlError);
+          urlInput.focus();
+          return;
+        }
+        urlInput.classList.remove('invalid');
+
+        if (aliasEnabled) {
+          const aliasError = validateAlias(rawAlias);
+          if (aliasError) {
+            aliasInput.classList.add('invalid');
+            showError(aliasError);
+            aliasInput.focus();
+            return;
+          }
+          aliasInput.classList.remove('invalid');
+        }
+
+        // — Build request payload —
+        const payload = { long_url: rawUrl };
+        if (aliasEnabled && rawAlias) {
+          payload.custom_alias = rawAlias;
+        }
+
+        setLoading(true);
+        hideResult();
+
+        try {
+          const response = await fetch('/api/shorten', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.short_url) {
+            showSuccess(data.short_url);
+          } else {
+            // Backend returned a structured error
+            const message = data?.error || `Unexpected error (HTTP ${response.status}).`;
+            showError(message);
+
+            // Highlight the relevant input field based on error context
+            if (response.status === 409 || (message.toLowerCase().includes('alias'))) {
+              aliasInput.classList.add('invalid');
+              aliasInput.focus();
+            }
+          }
+        } catch (networkError) {
+          showError('Network error — please check your connection and try again.');
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      /* ── Clear invalid state on user input ──────────── */
+      urlInput.addEventListener('input', () => urlInput.classList.remove('invalid'));
+      aliasInput.addEventListener('input', () => aliasInput.classList.remove('invalid'));
+
+      /* ── XSS guard ──────────────────────────────────── */
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+    })();
+  </script>
+</body>
+</html>

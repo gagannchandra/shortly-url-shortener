@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found</title>
+    <style>
+        body {font-family: sans-serif;margin: 2em; text-align: center ; color: #333; }
+        .error-container { border: 1px solid #ddd; padding: 2em 1em; border-radius: 8px; max-width: 600px; margin: 2em auto; background-color: #f9f9f9;}
+        h1 {font-size: 3em; color: #ff6347; margin: 0;}
+        p { font-size: 1.2em;}
+        a { color: #007bff; text-decoration: none; font-weight: bold;}
+        a:hover { text-decoration: underline;}
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>404</h1>
+        <p>Oops! Page Not Found.</p>
+        <p>The link you followed may be broken, or the page may have been removed.</p>
+        <a href="{{ url_for('index') }}"> Go back to the Homepage</a>
+    </div>
+    
+</body>
+</html>

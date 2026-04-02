@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Analytics</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em;}
+        .analytics-container {border: 1px solid #ccc; padding: 1em; border-radius: 5px; max-width: 800px; }
+        .data-point {margin-bottom: 1em ;}
+        .data-point strong { display: block; margin-bottom: 0.25em; color: #333;}
+        .data-point code { background-color: #f4f4f4; padding: 2px 5px; border-radius: 3px;}
+        .clicks-highlight { font-size: 2em; font-weight: bold; color: #007bff;}
+    </style>
+</head>
+<body>
+    <h1>Link Analytics</h1>
+    <!-- DataPoint : Original URL-->
+    <div class="data-point">
+        <strong>Original URL:</strong>
+        <code>{{ url_data.long_url }}</code>
+    </div>
+
+    <!-- Data Point : Short url-->
+     <div class="data-point">
+        <strong>Short URL:</strong>
+        <code> {{ request.host_url }}{{ url_data.short_code }}</code>
+     </div>
+
+     <!--Data Point : Total clicks-->
+     <div class="data-point">
+        <strong>Total Clicks:</strong>
+        <p class="clicks-highlight">{{ url_data.clicks }}</p>
+     </div>
+
+     <!--Data Point: Date Created-->
+     <div class="data-point">
+        <strong>Created on:</strong>
+        <p>{{url_data.created_at.strftime('%Y-%m-%d %H:%M:%S')}} UTC</p>
+     </div>
+</body>
+</html>
