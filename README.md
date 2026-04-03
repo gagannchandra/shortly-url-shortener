@@ -1,7 +1,4 @@
 <div align="center">
-
-<img src="https://placehold.co/80x80/007BFF/FFFFFF/png?text=S" alt="Shortly Logo" width="80" height="80" style="border-radius: 12px;" />
-
 # Shortly — URL Shortener Service
 
 **Production-grade URL shortening with custom aliases, REST API & click analytics**
