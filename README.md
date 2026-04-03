@@ -1,6 +1,5 @@
-<div align="center">
-# Shortly — URL Shortener Service
 
+# Shortly — URL Shortener Service
 **Production-grade URL shortening with custom aliases, REST API & click analytics**
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
@@ -9,8 +8,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
 [**Live Demo**](https://gagannchandra.pythonanywhere.com/) · [**API Docs**](#api-documentation) · [**Report Bug**](https://github.com/gagannchandra/shortly-url-shortener/issues)
-
-</div>
 
 ---
 
