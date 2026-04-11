@@ -19,41 +19,19 @@
 
 ---
 
-## Screenshots
+## 📸 Screenshots
 
-### 1. Shortening a real GitHub profile URL
-![Shorten GitHub Profile](screenshots/1.png)
+### 🔗 URL Shortening Interface
+![Main UI](screenshots/1.png)
 
-### 2. Validation — Catching an invalid website URL
-![Invalid URL Validation](screenshots/2.png)
+### ✅ Successful Link Generation
+![Short URL](screenshots/3.png)
 
-### 3. Normal flow — Shortening a standard URL
-![Normal Shortening](screenshots/3.png)
+### ⚠️ Custom Alias Handling
+![Alias Error](screenshots/5.png)
 
-### 4. Custom alias — Branding your short link
-![Custom Alias](screenshots/4.png)
-
-### 5. Alias conflict — Error when alias is already taken
-![Alias Availability Error](screenshots/5.png)
-
-### 6. Validation — Second invalid URL check scenario
-![Valid Website Check](screenshots/6.png)
-
-### 7. Normal flow — Another standard shortening example
-![Normal Behavior](screenshots/7.png)
-
-### 8. Link analytics — Tracking clicks on a short link
-![Link Analytics](screenshots/8.png)
-
-### 9. Link analytics — Updated click count after redirects
-![Link Analytics Updated](screenshots/9.png)
-
-### 10. Custom 404 page — Graceful not-found handling
-![Custom 404 Template](screenshots/10.png)
-
-### 11. Custom 500 page — Graceful server error handling
-![Custom 500 Template](screenshots/11.png)
-
+### 📊 Link Analytics
+![Analytics](screenshots/8.png)
 ---
 
 ## Features
