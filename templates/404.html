@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}404 — Page Not Found | Shortly{% endblock %}
+
+{% block body %}
+<div class="error-page">
+  <div class="error-card">
+    <p class="error-code">404</p>
+    <h2>Page Not Found</h2>
+    <p>
+      The link you followed may be broken, expired,<br>
+      or the page may have been removed.
+    </p>
+    <a href="{{ url_for('main.index') }}" class="home-btn">
+      <span class="material-symbols-outlined" style="font-size:18px">home</span>
+      Go to Homepage
+    </a>
+  </div>
+</div>
+{% endblock %}

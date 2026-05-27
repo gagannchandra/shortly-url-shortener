@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — {{ url_data.short_code }} | Shortly{% endblock %}
+
+{% block body %}
+<div class="container">
+  <header>
+    <h1>Shortly</h1>
+    <p>Link Analytics</p>
+  </header>
+
+  <div class="card">
+    <div class="analytics-grid">
+
+      <!-- Clicks -->
+      <div class="stat-card">
+        <p class="stat-label">
+          <span class="material-symbols-outlined" style="font-size:15px">bar_chart</span>
+          Total Clicks
+        </p>
+        <p class="clicks-number">{{ url_data.clicks }}</p>
+      </div>
+
+      <!-- Created at -->
+      <div class="stat-card">
+        <p class="stat-label">
+          <span class="material-symbols-outlined" style="font-size:15px">schedule</span>
+          Created On
+        </p>
+        <p class="stat-value">{{ url_data.created_at.strftime('%d %b %Y, %H:%M') }} UTC</p>
+      </div>
+
+      <!-- Short URL -->
+      <div class="stat-card">
+        <p class="stat-label">
+          <span class="material-symbols-outlined" style="font-size:15px">link</span>
+          Short URL
+        </p>
+        <p class="stat-value">
+          <a href="{{ request.host_url }}{{ url_data.short_code }}" target="_blank" rel="noopener noreferrer">
+            {{ request.host_url }}{{ url_data.short_code }}
+          </a>
+        </p>
+      </div>
+
+      <!-- Original URL -->
+      <div class="stat-card stat-card--full">
+        <p class="stat-label">
+          <span class="material-symbols-outlined" style="font-size:15px">open_in_new</span>
+          Original URL
+        </p>
+        <p class="stat-value">
+          <a href="{{ url_data.long_url }}" target="_blank" rel="noopener noreferrer">
+            {{ url_data.long_url }}
+          </a>
+        </p>
+      </div>
+
+    </div>
+
+    <a href="{{ url_for('main.index') }}" class="back-link">
+      <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      Back to Shortly
+    </a>
+  </div>
+</div>
+
+<footer>Built with Flask &bull; Vanilla JavaScript &bull; SQLite</footer>
+{% endblock %}

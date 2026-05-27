@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}500 — Server Error | Shortly{% endblock %}
+
+{% block body %}
+<div class="error-page">
+  <div class="error-card">
+    <p class="error-code">500</p>
+    <h2>Something Went Wrong</h2>
+    <p>
+      We're sorry — an unexpected error occurred on our end.<br>
+      Please try again in a moment.
+    </p>
+    <a href="{{ url_for('main.index') }}" class="home-btn">
+      <span class="material-symbols-outlined" style="font-size:18px">home</span>
+      Go to Homepage
+    </a>
+  </div>
+</div>
+{% endblock %}

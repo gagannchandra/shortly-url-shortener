@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Shortly — Modern URL Shortener{% endblock %}
+
+{% block body %}
+<div class="container">
+  <header>
+    <h1>Shortly</h1>
+    <p>Fast, reliable URL shortening with a modern interface.</p>
+  </header>
+
+  <div class="card">
+    <form id="shorten-form" novalidate>
+
+      <!-- Long URL input -->
+      <div class="form-group">
+        <label for="long-url-input">Enter your long URL</label>
+        <div class="input-wrapper">
+          <input
+            type="url"
+            id="long-url-input"
+            placeholder="https://example.com"
+            autocomplete="off"
+            spellcheck="false"
+            required
+          >
+          <button type="button" class="icon-btn" id="paste-btn" title="Paste from clipboard" aria-label="Paste URL">
+            <span class="material-symbols-outlined" id="paste-icon">content_paste</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom alias toggle -->
+      <div
+        class="alias-toggle"
+        id="alias-toggle"
+        role="switch"
+        aria-checked="false"
+        aria-label="Use custom alias"
+        tabindex="0"
+      >
+        <div class="switch" id="switch" aria-hidden="true"></div>
+        <span class="label">Use custom alias</span>
+      </div>
+
+      <!-- Custom alias input (animated reveal) -->
+      <div id="alias-group" aria-hidden="true">
+        <label for="custom-alias-input">Custom alias</label>
+        <input
+          type="text"
+          id="custom-alias-input"
+          placeholder="mybrand (4–30 alphanumeric)"
+          autocomplete="off"
+          spellcheck="false"
+          minlength="4"
+          maxlength="30"
+        >
+        <p class="field-hint">Letters and numbers only, 4–30 characters.</p>
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit" class="submit-btn" id="submit-btn">
+        <div class="spinner" aria-hidden="true"></div>
+        <span class="btn-text">Shorten URL</span>
+      </button>
+
+      <!-- Result area -->
+      <div id="result" class="result" role="status" aria-live="polite"></div>
+
+    </form>
+  </div>
+</div>
+
+<footer>Built with Flask &bull; Vanilla JavaScript &bull; SQLite</footer>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}
