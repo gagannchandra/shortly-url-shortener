@@ -9,7 +9,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/gagannchandra/shortly-url-shortener/ci.yml?style=flat-square&label=CI)](https://github.com/gagannchandra/shortly-url-shortener/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
-[**Live Demo**](https://shortly-pxjs.onrender.com/)) · [**API Docs**](#api-documentation) · [**Report Bug**](https://github.com/gagannchandra/shortly-url-shortener/issues)
+[**Live Demo**](https://shortly-pxjs.onrender.com) · [**API Docs**](#api-documentation) · [**Report Bug**](https://github.com/gagannchandra/shortly-url-shortener/issues)
 
 ---
 
