@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}500 — Server Error | Shortly{% endblock %}
+{% block body %}
+<div class="error-page">
+  <div class="error-card">
+    <div class="error-code" aria-hidden="true">500</div>
+    <h1 class="error-title">Something went wrong</h1>
+    <p class="error-desc">Our server ran into an unexpected error. This has been logged. Please try again in a moment.</p>
+    <a href="{{ url_for('views.index') }}" class="primary-btn">
+      <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+      Try again
+    </a>
+  </div>
+</div>
+{% endblock %}

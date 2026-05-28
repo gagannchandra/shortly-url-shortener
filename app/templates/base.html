@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="robots" content="index, follow" />
+
+  <title>{% block title %}Shortly — Modern URL Shortener{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Fast, reliable URL shortening with a modern interface, analytics, and QR codes.{% endblock %}" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{% block og_title %}Shortly{% endblock %}" />
+  <meta property="og:description" content="Fast, reliable URL shortening with analytics and QR codes." />
+  <meta property="og:site_name" content="Shortly" />
+
+  <!-- Ubuntu font — I tried a few others but this one felt right for the vibe -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Ubuntu+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- Material Symbols for all the icons — way easier than managing an icon pack locally -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E" />
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- animated background — blobs + floating icons for the aesthetic -->
+  <div class="bg-overlay" aria-hidden="true" id="bg-overlay">
+    <!-- blobs are just blurred divs with low-opacity colours -->
+    <div class="blob" style="width:400px;height:400px;background:rgba(59,130,246,0.06);top:-60px;left:-80px;"></div>
+    <div class="blob" style="width:500px;height:500px;background:rgba(99,102,241,0.05);bottom:-100px;right:-120px;"></div>
+    <div class="blob" style="width:300px;height:300px;background:rgba(139,92,246,0.04);top:40%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <script>
+      (function() {
+        const overlay = document.getElementById('bg-overlay');
+        const svgs = [
+          `<svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`,
+          `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"/></svg>`,
+          `<svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z"/></svg>`,
+          `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>`,
+          `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>`,
+          `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>`
+        ];
+        const colors = ['#60a5fa', '#c084fc', '#22d3ee', '#818cf8', '#2dd4bf', '#4ade80', '#fb923c', '#a78bfa', '#f472b6', '#34d399', '#fbbf24', '#7c3aed', '#3b82f6', '#f9a8d4', '#6366f1', '#fdba74', '#67e8f9', '#86efac', '#d8b4fe', '#fda4af'];
+        
+        // scatter random icons all over the background for decoration
+        // inspired by a Dribbble shot I saw — looks way better than a plain gradient
+        let delay = 0;
+        for (let y = 5; y < 100; y += 15) {
+          for (let x = 5; x < 100; x += 12) {
+            // small random offset so they don't look too grid-like
+            const px = x + (Math.random() * 6 - 3);
+            const py = y + (Math.random() * 6 - 3);
+            
+            const div = document.createElement('div');
+            div.className = 'floating-icon';
+            div.style.top = py + '%';
+            div.style.left = px + '%';
+            div.style.animationDelay = delay + 's';
+            // random opacity so they fade nicely into the background
+            div.style.opacity = (Math.random() * 0.1 + 0.15).toFixed(2);
+            
+            // pick random icon + colour combo
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const svg = svgs[Math.floor(Math.random() * svgs.length)].replace('currentColor', color);
+            
+            div.innerHTML = svg;
+            overlay.appendChild(div);
+            delay += 0.4;
+          }
+        }
+      })();
+    </script>
+  </div>
+
+  <!-- nav bar -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="{{ url_for('views.index') }}" class="nav-logo" aria-label="Shortly home">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+      </svg>
+      <span style="font-size: 1.35rem; font-weight: 600; color: white; letter-spacing: -0.02em;">shortly</span>
+    </a>
+  </nav>
+
+  <!-- main page content — each template fills in the 'body' block -->
+  <main id="main-content">
+    {% block body %}{% endblock %}
+  </main>
+
+  <!-- footer with quick feature links -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-row">
+      <span class="footer-text"><span class="material-symbols-outlined" aria-hidden="true">bar_chart</span> Analytics</span>
+      <span class="footer-text"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span> QR Codes</span>
+      <span class="footer-text"><span class="material-symbols-outlined" aria-hidden="true">timer</span> Expirations</span>
+      <span class="footer-text"><span class="material-symbols-outlined" aria-hidden="true">edit</span> Custom Aliases</span>
+      <a href="{{ url_for('api.health') }}" class="footer-link footer-status" aria-label="API status">
+        <span class="status-dot" aria-hidden="true"></span> Systems Operational
+      </a>
+      <a href="{{ url_for('views.about') }}" class="footer-link footer-about"><span class="material-symbols-outlined" aria-hidden="true">info</span> About</a>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

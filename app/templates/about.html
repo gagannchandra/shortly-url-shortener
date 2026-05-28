@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}About — Shortly{% endblock %}
+
+{% block body %}
+<div class="about-container">
+  <h1 class="about-title">About</h1>
+  
+  <p class="about-text">
+    Shortly started as a backend learning project while I was exploring Flask and database design.
+  </p>
+
+  <h2 class="about-section-title">Why I built it</h2>
+  <p class="about-text">
+    I mainly built it to better understand routing, analytics, rate limiting, and production-style backend structure. It was a practical way to move beyond basic tutorials and build something functional that I could actually use.
+  </p>
+
+  <h2 class="about-section-title">Tech stack</h2>
+  <ul class="about-list">
+    <li><strong>Backend:</strong> Python, Flask, Flask-Limiter</li>
+    <li><strong>Database:</strong> MongoDB</li>
+    <li><strong>Frontend:</strong> Vanilla JS, custom CSS</li>
+    <li><strong>Utils:</strong> Segno for QR codes</li>
+  </ul>
+
+  <h2 class="about-section-title">What I learned</h2>
+  <p class="about-text">
+    This project helped me learn frontend/backend integration and deployment workflows. I got comfortable handling MongoDB document schemas, setting up basic API endpoints, and managing custom link expirations programmatically.
+  </p>
+
+  <h2 class="about-section-title">Current status</h2>
+  <p class="about-text">
+    Still improving parts of the UI and analytics system. It's running stably, and expired links are automatically cleaned up via MongoDB TTL indexes. I plan to keep refining the data visualization and overall user experience.
+  </p>
+
+  <div class="about-links">
+    <a href="https://github.com/gagannchandra/shortly-url-shortener" target="_blank" rel="noopener noreferrer" class="about-link">
+      <span class="material-symbols-outlined" aria-hidden="true">code</span>
+      View Source
+    </a>
+  </div>
+</div>
+{% endblock %}

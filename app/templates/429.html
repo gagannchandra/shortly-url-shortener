@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}429 — Too Many Requests | Shortly{% endblock %}
+{% block body %}
+<div class="error-page">
+  <div class="error-card">
+    <div class="error-code" aria-hidden="true">429</div>
+    <h1 class="error-title">Slow down!</h1>
+    <p class="error-desc">You've made too many requests in a short time. Please wait a moment before trying again.</p>
+    <a href="{{ url_for('views.index') }}" class="primary-btn">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Go back
+    </a>
+  </div>
+</div>
+{% endblock %}

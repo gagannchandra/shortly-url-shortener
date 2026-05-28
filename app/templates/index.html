@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Shortly — Modern URL Shortener{% endblock %}
+
+{% block body %}
+<div class="hero">
+  <!-- title + subtitle -->
+  <h1 class="hero-title">Shortly</h1>
+  <p class="hero-subtitle">Fast, reliable URL shortening with a modern interface.</p>
+</div>
+
+<!-- main card where the shortening happens -->
+<div class="card" id="shorten-card">
+  <form id="shorten-form" novalidate aria-label="URL shortener">
+
+    <!-- URL input + paste button -->
+    <div class="field-group">
+      <label class="field-label" for="long-url-input">Enter your long URL</label>
+      <div class="input-row">
+        <input
+          type="url"
+          id="long-url-input"
+          class="field-input"
+          placeholder="https://example.com"
+          autocomplete="off"
+          spellcheck="false"
+          required
+          aria-required="true"
+          aria-describedby="url-error"
+        >
+        <button type="button" class="icon-btn" id="paste-btn" title="Paste from clipboard" aria-label="Paste URL">
+          <span class="material-symbols-outlined" id="paste-icon">content_paste</span>
+        </button>
+      </div>
+      <p class="field-error" id="url-error" role="alert" aria-live="polite"></p>
+    </div>
+
+    <!-- toggle switches for custom alias and expiry -->
+    <div class="options-row">
+      <button type="button" class="toggle-btn" id="alias-toggle" role="switch" aria-checked="false" aria-controls="alias-group">
+        <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">Use custom alias</span>
+      </button>
+      <button type="button" class="toggle-btn" id="expiry-toggle" role="switch" aria-checked="false" aria-controls="expiry-group">
+        <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">Set expiry</span>
+      </button>
+    </div>
+
+    <!-- collapsible sections that show when the toggles are on -->
+    <div class="advanced-options">
+      <!-- custom alias input -->
+      <div id="alias-group" class="collapsible" aria-hidden="true">
+        <div class="collapsible-inner">
+          <label class="field-label" for="custom-alias-input">Letters, numbers, hyphens, underscores. 4–30 characters.</label>
+          <input
+            type="text"
+            id="custom-alias-input"
+            class="field-input mono"
+            placeholder="my-brand"
+            autocomplete="off"
+            spellcheck="false"
+            minlength="4"
+            maxlength="30"
+            aria-describedby="alias-error"
+          />
+          <p class="field-error" id="alias-error" role="alert" aria-live="polite"></p>
+        </div>
+      </div>
+  
+      <!-- expiry dropdown -->
+      <div id="expiry-group" class="collapsible" aria-hidden="true">
+        <div class="collapsible-inner">
+          <label class="field-label" for="ttl-select">Link expires after</label>
+          <select id="ttl-select" class="field-select">
+            <option value="1">1 day</option>
+            <option value="7" selected>7 days</option>
+            <option value="30">30 days</option>
+            <option value="90">90 days</option>
+            <option value="365">1 year</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- submit — spinner shows while waiting for API response -->
+    <button type="submit" class="submit-btn" id="submit-btn" aria-busy="false">
+      <span class="btn-spinner" aria-hidden="true"></span>
+      <span class="btn-text">Shorten URL</span>
+    </button>
+
+    <!-- result area — filled by JS after shortening, empty by default -->
+    <div id="result-area" class="result-area" aria-live="polite" aria-atomic="true"></div>
+
+  </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — {{ url_data.short_code }} | Shortly{% endblock %}
+{% block meta_description %}View click analytics for shortly/{{ url_data.short_code }}{% endblock %}
+
+{% block body %}
+<div class="analytics-page">
+
+  <div class="analytics-header">
+    <a href="{{ url_for('views.index') }}" class="back-btn">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Back
+    </a>
+    <h1 class="analytics-title">Link Analytics</h1>
+    <div class="short-code-badge">
+      <span class="material-symbols-outlined" aria-hidden="true">link</span>
+      {{ url_data.short_code }}
+    </div>
+  </div>
+
+  <!-- stats grid — shows total clicks, created date, expiry, last click -->
+  <div class="stats-grid" role="list">
+    <div class="stat-card stat-card--primary" role="listitem">
+      <div class="stat-icon"><span class="material-symbols-outlined" aria-hidden="true">ads_click</span></div>
+      <div class="stat-body">
+        <p class="stat-label">Total Clicks</p>
+        <p class="stat-value stat-value--big" id="click-count">{{ url_data.clicks }}</p>
+      </div>
+    </div>
+    <div class="stat-card" role="listitem">
+      <div class="stat-icon"><span class="material-symbols-outlined" aria-hidden="true">schedule</span></div>
+      <div class="stat-body">
+        <p class="stat-label">Created</p>
+        <p class="stat-value">{{ url_data.created_at[:10] if url_data.created_at else '—' }}</p>
+      </div>
+    </div>
+    <div class="stat-card" role="listitem">
+      <div class="stat-icon"><span class="material-symbols-outlined" aria-hidden="true">timer_off</span></div>
+      <div class="stat-body">
+        <p class="stat-label">Expires</p>
+        <p class="stat-value">
+          {% if url_data.expires_at %}{{ url_data.expires_at[:10] }}
+          {% else %}<span class="muted-text">Never</span>{% endif %}
+        </p>
+      </div>
+    </div>
+    <div class="stat-card" role="listitem">
+      <div class="stat-icon"><span class="material-symbols-outlined" aria-hidden="true">touch_app</span></div>
+      <div class="stat-body">
+        <p class="stat-label">Last Click</p>
+        <p class="stat-value">
+          {% if url_data.last_clicked_at %}{{ url_data.last_clicked_at[:10] }}
+          {% else %}<span class="muted-text">No clicks yet</span>{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- chart + QR code side by side -->
+  <div class="detail-row">
+    <div class="card chart-card">
+      <h2 class="card-title">
+        <span class="material-symbols-outlined" aria-hidden="true">show_chart</span>
+        Last 14 Days
+      </h2>
+      <div class="chart-wrapper" aria-label="Daily clicks chart">
+        <canvas id="clicks-chart" width="600" height="180"></canvas>
+      </div>
+    </div>
+    <div class="card qr-card">
+      <h2 class="card-title">
+        <span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>
+        QR Code
+      </h2>
+      {% if qr_code %}
+        <img class="qr-image" src="{{ qr_code }}" alt="QR code for {{ request.host_url }}{{ url_data.short_code }}" width="155" height="155" />
+        <a href="{{ qr_code }}" download="shortly-{{ url_data.short_code }}.png" class="qr-download-btn" aria-label="Download QR code">
+          <span class="material-symbols-outlined" aria-hidden="true">download</span>
+          Download PNG
+        </a>
+      {% else %}
+        <p class="muted-text">QR unavailable.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- link details card — shows the short and original URLs with copy button -->
+  <div class="card url-details-card">
+    <h2 class="card-title">
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      Link Details
+    </h2>
+    <div class="url-detail-row">
+      <span class="url-detail-label">Short URL</span>
+      <div class="url-detail-value">
+        <a href="{{ request.host_url }}{{ url_data.short_code }}" target="_blank" rel="noopener noreferrer" class="url-link mono">{{ request.host_url }}{{ url_data.short_code }}</a>
+        <button type="button" class="icon-btn-sm" id="copy-short-btn" aria-label="Copy short URL" data-copy="{{ request.host_url }}{{ url_data.short_code }}">
+          <span class="material-symbols-outlined" id="copy-short-icon" aria-hidden="true">content_copy</span>
+        </button>
+      </div>
+    </div>
+    <div class="url-detail-divider" aria-hidden="true"></div>
+    <div class="url-detail-row">
+      <span class="url-detail-label">Original URL</span>
+      <div class="url-detail-value">
+        <a href="{{ url_data.long_url }}" target="_blank" rel="noopener noreferrer" class="url-link url-link--truncated">{{ url_data.long_url }}</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script id="chart-data" type="application/json">
+  {{ url_data.chart_data | tojson }}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}
