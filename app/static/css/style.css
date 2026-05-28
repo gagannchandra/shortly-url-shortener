@@ -22,15 +22,16 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-font-smoothing: antialiased; }
+html { -webkit-font-smoothing: antialiased; overflow: hidden; }
 
 body {
   font-family: var(--font);
   background-color: #020617;
   color: var(--text);
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── Animated Background Overlay ── */
@@ -82,8 +83,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   padding: 16px 28px;
   position: relative;
   z-index: 10;
-  transform: scale(1.1);
-  transform-origin: top left;
 }
 
 .nav-logo {
@@ -114,22 +113,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ── Layout ── */
 main#main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 24px 60px;
+  max-width: 880px;
   width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  transform: scale(1.1);
-  transform-origin: top center;
+  margin: auto;
+  padding: 24px;
+  overflow-y: auto;
 }
 
 /* ── Hero / Header ── */
 .hero {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 40px;
 }
 
 .hero-badge { display: none; }
@@ -139,16 +133,13 @@ main#main-content {
   font-weight: 700;
   letter-spacing: -0.3px;
   color: var(--text);
-  margin-bottom: 10px;
-  line-height: 1.2;
 }
 
 .hero-accent { color: var(--primary); }
 
 .hero-subtitle {
   color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  margin-top: 10px;
 }
 
 /* ── Card ── */
@@ -159,7 +150,6 @@ main#main-content {
   padding: 32px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  width: 100%;
 }
 
 .card-title {
@@ -170,11 +160,13 @@ main#main-content {
 .card-title .material-symbols-outlined { font-size: 15px; }
 
 /* ── Form ── */
-.field-group { margin-bottom: 20px; }
+.field-group { margin-bottom: 22px; }
 
 .field-label {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 0.88rem; color: var(--muted); margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
 }
 .field-label .material-symbols-outlined { font-size: 15px; }
 
@@ -183,27 +175,27 @@ main#main-content {
 .field-input {
   flex: 1; min-width: 0;
   width: 100%;
-  padding: 13px 16px;
+  padding: 14px 16px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.04);
-  color: var(--text);
-  font-size: 0.95rem;
-  font-family: var(--font);
+  color: white;
+  font-size: 1rem;
+  font-family: inherit;
   outline: none;
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 .field-input::placeholder { color: #4b5563; }
 .field-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-dim); }
 .field-input.invalid { border-color: var(--error); box-shadow: 0 0 0 3px var(--error-dim); }
-.field-input.mono { font-family: var(--font-mono); font-size: 0.9rem; }
+.field-input.mono { font-family: var(--font-mono); font-size: 1rem; }
 
 .field-select {
-  width: 100%; padding: 13px 16px;
+  width: 100%; padding: 14px 16px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.04);
-  color: var(--text); font-size: 0.95rem; font-family: var(--font);
+  color: white; font-size: 1rem; font-family: inherit;
   outline: none; cursor: pointer;
   appearance: none; -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
@@ -217,7 +209,7 @@ main#main-content {
 .field-error { font-size: 0.76rem; color: var(--error); margin-top: 4px; min-height: 1.1em; }
 
 /* ── Options row (toggles) ── */
-.options-row { display: flex; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+.options-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
 
 .toggle-btn {
   display: inline-flex; align-items: center; gap: 10px;
@@ -249,7 +241,7 @@ main#main-content {
 .toggle-btn[aria-checked="true"] .toggle-thumb { transform: translateX(20px); }
 
 .toggle-label {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--muted);
   user-select: none;
   transition: color var(--transition);
@@ -315,13 +307,21 @@ main#main-content {
 
 /* ── Submit ── */
 .submit-btn {
-  width: 100%; padding: 14px;
-  background: var(--primary); border: none;
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  border: none;
   border-radius: 12px;
-  color: white; font-size: 1rem; font-weight: 600;
-  font-family: var(--font); cursor: pointer; margin-top: 20px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  transition: opacity var(--transition), box-shadow var(--transition);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 .submit-btn:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 0 22px rgba(99,102,241,0.4); }
 .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
