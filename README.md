@@ -15,29 +15,31 @@
 
 ## Overview
 
-**Shortly** is a full-stack URL shortening service that converts long URLs into clean, shareable links — with optional custom aliases, configurable link expiry, per-link click analytics, and inline QR code generation. Built on a layered Flask backend (factory pattern, service layer, Blueprint routing), MongoDB for persistence, and a zero-framework JavaScript frontend.
+**Shortly** is a full-stack URL shortening service — paste a long URL, get a short one. Supports custom aliases, optional link expiry, per-link click analytics, and inline QR code generation.
 
-> Demonstrates production-grade web service design: RESTful API architecture, MongoDB with TTL indexes for auto-expiry, rate limiting, security headers via CSP, Docker + Compose deployment, and a GitHub Actions CI pipeline — all without a frontend framework.
+I built v1 as a weekend project with Flask + SQLite to learn the basics. v2 is the proper rebuild: MongoDB (with TTL indexes that auto-expire links — genuinely one of the cooler things I learned during this), a proper app factory with Blueprint routing and a service layer, rate limiting, security headers, Docker, and a CI pipeline. Same idea, done right.
 
 ---
 
 ## What's New in v2.0.0
 
+v2 is a ground-up rewrite. Here's what changed:
+
 | Area | v1.1.0 | v2.0.0 |
 |---|---|---|
 | **Database** | SQLite + SQLAlchemy ORM | MongoDB 7.0 + PyMongo |
 | **Architecture** | Flat module layout | App factory · Blueprint routing · Service layer |
-| **Link Expiry** | Not supported | TTL per link (1–365 days), auto-deleted by MongoDB TTL index |
-| **QR Codes** | Not supported | Inline base64 PNG, generated on-demand via `segno` |
-| **Rate Limiting** | Not supported | Flask-Limiter (200/day · 50/hr global; 10/min on `/api/shorten`) |
-| **Security Headers** | Not supported | Flask-Talisman: CSP, HSTS, clickjacking prevention |
-| **Health Check** | Not supported | `GET /api/health` (HEAD supported for uptime monitors) |
+| **Link Expiry** | ✗ | TTL per link (1–365 days), auto-deleted by MongoDB TTL index |
+| **QR Codes** | ✗ | Inline base64 PNG, generated on-demand via `segno` |
+| **Rate Limiting** | ✗ | Flask-Limiter (200/day · 50/hr global; 10/min on `/api/shorten`) |
+| **Security Headers** | ✗ | Flask-Talisman: CSP, HSTS, clickjacking prevention |
+| **Health Check** | ✗ | `GET /api/health` (HEAD supported for uptime monitors) |
 | **Analytics API** | HTML page only | JSON endpoint + 14-day chart data |
 | **Error Handling** | 404 / 500 pages | 404 / 429 / 500 — JSON for API, HTML for browser |
-| **Docker** | Not included | Multi-stage Dockerfile + `docker-compose.yml` |
-| **CI** | Not included | GitHub Actions — lint, pytest, Docker image build |
-| **Tests** | Not included | pytest suite with `mongomock` |
-| **Logging** | Not included | Dev-friendly console · Structured JSON in production |
+| **Docker** | ✗ | Multi-stage Dockerfile + `docker-compose.yml` |
+| **CI** | ✗ | GitHub Actions — pytest, Docker build on `main` |
+| **Tests** | ✗ | pytest suite with `mongomock` (no real DB needed) |
+| **Logging** | ✗ | Readable console in dev · Structured JSON in production |
 
 ---
 
@@ -47,15 +49,15 @@
 |---|---|
 | 🔗 **URL Shortening** | Cryptographically secure random 6-char codes (base62, ~56B combinations) |
 | ✏️ **Custom Aliases** | Alphanumeric + hyphen/underscore, 4–30 chars, reserved-word protection |
-| ⏳ **Link Expiry** | Optional `ttl_days` (1–365); MongoDB TTL index deletes docs automatically |
+| ⏳ **Link Expiry** | Optional `ttl_days` (1–365); MongoDB TTL index handles cleanup automatically |
 | 📊 **Click Analytics** | Total clicks · last-clicked timestamp · 14-day daily chart |
-| 📱 **QR Code** | Inline base64 PNG returned with every shortened link, also on analytics page |
-| 🔌 **REST API** | Clean JSON endpoints with consistent `{data, status}` / `{error, status}` shape |
+| 📱 **QR Code** | Returned inline with every new link, and on the analytics page |
+| 🔌 **REST API** | Consistent `{data, status}` / `{error, status}` envelope on all endpoints |
 | 🏥 **Health Check** | `GET /api/health` pings MongoDB and reports service status |
-| ⚡ **No-Reload UI** | Vanilla JS + Fetch API — no frontend framework overhead |
-| 🛡️ **Rate Limiting** | Per-IP limits via Flask-Limiter; `X-RateLimit-*` headers returned to clients |
-| 🔒 **Security Headers** | CSP, `frame-ancestors: none`, `referrer-policy`, HTTPS enforcement via Talisman |
-| 🐳 **Docker** | Multi-stage image (builder + non-root runtime) + Compose with MongoDB & Mongo Express |
+| ⚡ **No-Reload UI** | Vanilla JS + Fetch API — no framework, no build step |
+| 🛡️ **Rate Limiting** | Per-IP limits; `X-RateLimit-*` headers so clients know where they stand |
+| 🔒 **Security Headers** | CSP, `frame-ancestors: none`, referrer policy, HTTPS enforcement |
+| 🐳 **Docker** | Multi-stage image (non-root runtime) + Compose with MongoDB & Mongo Express |
 | 🔁 **CI/CD** | GitHub Actions: test on every push, build Docker image on `main` |
 
 ---
@@ -64,11 +66,11 @@
 
 ```
 Backend      → Python 3.12, Flask 3, PyMongo 4, Flask-Limiter, Flask-Talisman
-Database     → MongoDB 7.0 (TTL index for link expiry, unique index on short_code)
+Database     → MongoDB 7.0  (TTL index for expiry, unique index on short_code)
 QR Codes     → segno
 Frontend     → HTML5, CSS3, Vanilla JavaScript (Fetch API)
 Config       → python-dotenv, env-based config classes (Dev / Test / Prod)
-Deploy       → Gunicorn + Railway / Render (Procfile) · Docker + Compose
+Deploy       → Gunicorn + Railway / Render (Procfile)  ·  Docker + Compose
 CI           → GitHub Actions (pytest + mongomock + Docker build)
 Testing      → pytest, pytest-flask, mongomock
 ```
@@ -83,16 +85,16 @@ shortly/
 ├── Procfile                    # Gunicorn for Railway / Render
 ├── Dockerfile                  # Multi-stage build (builder + non-root runtime)
 ├── docker-compose.yml          # App + MongoDB + Mongo Express (dev profile)
-├── mongo-init.js               # MongoDB init script (collections + indexes)
+├── mongo-init.js               # DB init script — collections + indexes
 ├── requirements.txt
 ├── .env.example
 ├── .github/
-│   └── workflows/ci.yml        # Lint → test → Docker build
+│   └── workflows/ci.yml        # Test → Docker build pipeline
 ├── app/
 │   ├── __init__.py             # App factory — wires Flask, Limiter, Talisman, Blueprints
 │   ├── config.py               # DevelopmentConfig / TestingConfig / ProductionConfig
 │   ├── db.py                   # MongoDB client, connection pool, index creation
-│   ├── models.py               # Data access layer (CRUD + click recording)
+│   ├── models.py               # Data access layer (CRUD + atomic click recording)
 │   ├── routes/
 │   │   ├── api.py              # Blueprint: /api/shorten, /api/analytics, /api/health
 │   │   └── views.py            # Blueprint: /, /about, /analytics/<code>, /<code>
@@ -103,7 +105,7 @@ shortly/
 │   ├── static/
 │   │   ├── css/style.css
 │   │   └── js/
-│   │       ├── main.js         # Shortener form logic
+│   │       ├── main.js         # Shortener form
 │   │       └── analytics.js    # Chart rendering
 │   └── templates/
 │       ├── base.html
@@ -111,7 +113,7 @@ shortly/
 │       ├── analytics.html
 │       ├── about.html
 │       ├── 404.html
-│       ├── 429.html            # Rate limit exceeded page
+│       ├── 429.html
 │       └── 500.html
 └── tests/
     ├── conftest.py
@@ -124,16 +126,18 @@ shortly/
 
 ### Prerequisites
 - Python 3.12+
-- MongoDB 6+ running locally **or** a free [MongoDB Atlas](https://mongodb.com/atlas) cluster
+- MongoDB 6+ locally **or** a free [MongoDB Atlas](https://mongodb.com/atlas) cluster
 - Git
 
-### 1. Clone the repository
+If you just want to run the whole stack without installing MongoDB separately, skip to the [Docker section](#docker-recommended) — it's easier.
+
+### 1. Clone the repo
 ```bash
 git clone https://github.com/gagannchandra/shortly-url-shortener.git
 cd shortly-url-shortener
 ```
 
-### 2. Create and activate a virtual environment
+### 2. Create a virtual environment
 ```bash
 python -m venv venv
 
@@ -158,14 +162,15 @@ Edit `.env`:
 ```env
 FLASK_ENV=development
 
-# Generate with: python -c "import secrets; print(secrets.token_hex(24))"
+# Generate a key: python -c "import secrets; print(secrets.token_hex(24))"
 SECRET_KEY=your-secret-key-here
 
 # Local MongoDB
 MONGO_URI=mongodb://localhost:27017/shortly
 MONGO_DB_NAME=shortly
 
-# Optional — defaults to in-memory if omitted (single instance dev only)
+# Optional — rate limiting defaults to in-memory if this is omitted.
+# Fine for a single instance; use Redis if you're running multiple workers.
 # REDIS_URL=redis://localhost:6379
 
 SHORT_CODE_LENGTH=6
@@ -173,33 +178,32 @@ FORCE_HTTPS=false
 LOG_LEVEL=INFO
 ```
 
-### 5. Run the app
+### 5. Run
 ```bash
 python run.py
 ```
 
-MongoDB indexes are created automatically on first startup. Visit **http://127.0.0.1:5000** 🚀
+Indexes are created automatically on first boot. Visit **http://127.0.0.1:5000** 🚀
 
 ---
 
 ## Docker (Recommended)
 
-Spin up the full stack — app + MongoDB + Mongo Express UI — with a single command:
+The easiest way to run everything locally. One command gets you the app, MongoDB, and optionally a Mongo Express UI to poke around the database.
 
 ```bash
-# Copy and fill in .env
-cp .env.example .env
+cp .env.example .env          # fill in SECRET_KEY at minimum
 
-# Start app + MongoDB (production-like)
+# App + MongoDB
 docker compose up -d
 
-# Also start Mongo Express UI at http://localhost:8081
+# App + MongoDB + Mongo Express at http://localhost:8081
 docker compose --profile dev up -d
 ```
 
-The app is available at **http://localhost:8000**.
+App runs at **http://localhost:8000**.
 
-To build and run just the app image:
+To build and run just the app image on its own:
 ```bash
 docker build -t shortly .
 docker run -p 8000:8000 --env-file .env shortly
@@ -209,7 +213,7 @@ docker run -p 8000:8000 --env-file .env shortly
 
 ## API Documentation
 
-All API responses share a consistent envelope:
+Every response uses a consistent envelope so you always know what to expect:
 
 ```json
 // Success
@@ -223,7 +227,7 @@ All API responses share a consistent envelope:
 
 ### `POST /api/shorten`
 
-Shorten a URL programmatically.
+Shorten a URL. The only required field is `long_url`.
 
 **Request body**
 ```json
@@ -236,11 +240,11 @@ Shorten a URL programmatically.
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
-| `long_url` | string | ✅ | Auto-prepends `https://` if scheme is missing |
+| `long_url` | string | ✅ | Missing `https://`? It gets added automatically. |
 | `custom_alias` | string | ❌ | Letters, numbers, hyphens, underscores; 4–30 chars |
-| `ttl_days` | integer | ❌ | 1–365; omit for a permanent link |
+| `ttl_days` | integer | ❌ | 1–365; leave it out for a permanent link |
 
-**Success — `201 Created`**
+**`201 Created`**
 ```json
 {
   "data": {
@@ -255,23 +259,23 @@ Shorten a URL programmatically.
 }
 ```
 
-> `expires_at` is `null` for permanent links.
+`expires_at` is `null` for permanent links. `qr_code` is a ready-to-use base64 data URI.
 
-**Error responses**
+**Errors**
 
 | Code | Reason |
 |---|---|
-| `400 Bad Request` | Missing/malformed URL, invalid alias format, invalid `ttl_days` |
-| `409 Conflict` | The requested `custom_alias` is already taken |
-| `429 Too Many Requests` | Rate limit exceeded (10 req/min per IP on this endpoint) |
+| `400` | Missing/malformed URL, invalid alias, bad `ttl_days` |
+| `409` | That custom alias is already taken |
+| `429` | Rate limit hit (10 req/min per IP on this endpoint) |
 
 ---
 
 ### `GET /api/analytics/<short_code>`
 
-Returns analytics data for a given short code as JSON. Used by the analytics page to render the chart.
+Fetch analytics for a short code. This is what the analytics page calls to render the chart.
 
-**Success — `200 OK`**
+**`200 OK`**
 ```json
 {
   "data": {
@@ -283,34 +287,31 @@ Returns analytics data for a given short code as JSON. Used by the analytics pag
     "last_clicked_at": "2025-06-05T14:32:00+00:00",
     "chart_data": [
       { "date": "2025-05-23", "clicks": 3 },
-      { "date": "2025-05-24", "clicks": 0 },
-      ...
+      { "date": "2025-05-24", "clicks": 0 }
     ]
   },
   "status": 200
 }
 ```
 
-`chart_data` always contains the last 14 days (days with no clicks are included as `0`).
-
-**Error**
+`chart_data` always has 14 entries (one per day). Days with zero clicks are included as `0` so the chart never has gaps.
 
 | Code | Reason |
 |---|---|
-| `404 Not Found` | Short code doesn't exist or has expired |
+| `404` | Short code doesn't exist or has already expired |
 
 ---
 
 ### `GET /api/health`
 
-Health check — verifies MongoDB connectivity. Also accepts `HEAD` (for UptimeRobot / uptime monitors).
+Checks if the app can reach MongoDB. Also responds to `HEAD` for uptime monitors like UptimeRobot.
 
-**`200 OK`** — database is reachable
+**`200 OK`**
 ```json
 { "status": "ok", "database": "ok", "service": "shortly" }
 ```
 
-**`503 Service Unavailable`** — database is unreachable
+**`503 Service Unavailable`**
 ```json
 { "status": "degraded", "database": "error", "service": "shortly" }
 ```
@@ -321,27 +322,27 @@ Health check — verifies MongoDB connectivity. Also accepts `HEAD` (for UptimeR
 
 ### Railway / Render
 
-The `Procfile` is included for one-command deployment:
+The `Procfile` is ready to go:
 
 ```
 web: gunicorn --workers 2 --bind 0.0.0.0:$PORT --timeout 30 --access-logfile - --log-level info run:app
 ```
 
-Set these environment variables in your host dashboard:
+Set these in your host's environment dashboard:
 
 | Variable | Value |
 |---|---|
-| `SECRET_KEY` | Long random string |
+| `SECRET_KEY` | A long random string |
 | `MONGO_URI` | MongoDB Atlas connection string |
 | `MONGO_DB_NAME` | `shortly` |
 | `FLASK_ENV` | `production` |
 | `FORCE_HTTPS` | `true` |
 
-No other changes needed — indexes are created automatically on first boot.
+That's it — indexes are created on first boot, nothing else to configure.
 
-### Redis (optional, recommended for production)
+### A note on rate limiting + Redis
 
-By default, rate limiting uses in-memory storage, which doesn't persist across restarts or scale across multiple workers. For production, point `REDIS_URL` at a Redis instance:
+By default, rate limiting state lives in memory, which means it resets on restart and doesn't work correctly across multiple workers. If you're deploying with more than one Gunicorn worker (or just want limits to survive restarts), add a Redis URL:
 
 ```env
 REDIS_URL=redis://your-redis-host:6379
@@ -352,20 +353,16 @@ REDIS_URL=redis://your-redis-host:6379
 ## Running Tests
 
 ```bash
-# Run the full test suite (uses mongomock — no real MongoDB needed)
 pytest tests/ -v
-
-# With coverage
-pytest tests/ -v --tb=short
 ```
 
-Tests use `mongomock` to mock MongoDB in memory, so no external database is required to run them.
+Tests use `mongomock` to fake MongoDB in memory, so you don't need a running database to run them. The CI pipeline runs the same suite against a real MongoDB 7.0 container on every push.
 
 ---
 
 ## License
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
+MIT. See [`LICENSE`](LICENSE).
 
 ---
 
